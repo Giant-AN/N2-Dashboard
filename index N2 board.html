@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>N2 Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0d0f14;--surface:#141720;--surface2:#1c2030;--border:#2a2f42;--accent:#4f8ef7;--accent2:#7dd3fc;--green:#34d399;--amber:#fbbf24;--red:#f87171;--purple:#a78bfa;--text:#e8eaf0;--text2:#8b90a8;--text3:#555b75;--mono:'DM Mono',monospace;--sans:'Sarabun',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;font-size:14px;overflow-x:hidden}
+.header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:30px;height:30px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.logo-text{font-family:var(--mono);font-size:14px;font-weight:500;letter-spacing:.05em}
+.logo-sub{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.shift-pill{font-family:var(--mono);font-size:12px;padding:4px 12px;border-radius:4px;font-weight:500;letter-spacing:.03em}
+.shift-work{background:rgba(52,211,153,.18);color:var(--green);border-left:3px solid var(--green)}
+.shift-off{background:rgba(248,113,113,.15);color:var(--red);border-left:3px solid var(--red)}
+.btn{padding:5px 12px;border-radius:6px;border:none;cursor:pointer;font-family:var(--sans);font-size:12px;font-weight:500;transition:all .15s}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#3a7de0}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn-sm{padding:3px 9px;font-size:11px}
+.btn-danger{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3)}.btn-danger:hover{background:rgba(248,113,113,.25)}
+.btn-green{background:rgba(52,211,153,.15);color:var(--green);border:1px solid rgba(52,211,153,.3)}.btn-green:hover{background:rgba(52,211,153,.25)}
+.tabs{display:flex;gap:2px;padding:10px 20px 0;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto}
+.tab{padding:7px 14px;border-radius:6px 6px 0 0;border:1px solid transparent;border-bottom:none;cursor:pointer;font-size:12px;font-weight:500;color:var(--text3);background:transparent;white-space:nowrap;transition:all .15s;font-family:var(--sans)}
+.tab.active{background:var(--bg);border-color:var(--border);color:var(--text)}
+.tab:hover:not(.active){color:var(--text2)}
+.main{padding:16px 20px;max-width:1200px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.stat-num{font-family:var(--mono);font-size:20px;font-weight:500}
+.stat-lbl{font-size:10px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
+.sec-title{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.twrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--surface2);padding:8px 12px;text-align:left;font-weight:500;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.badge{font-size:10px;padding:2px 7px;border-radius:4px;font-family:var(--mono);font-weight:500;display:inline-block}
+.b-echk{background:rgba(79,142,247,.15);color:var(--accent2);border:1px solid rgba(79,142,247,.3)}
+.b-cc{background:rgba(167,139,250,.15);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
+.b-rfid{background:rgba(52,211,153,.15);color:var(--green);border:1px solid rgba(52,211,153,.3)}
+.b-deep{background:rgba(251,191,36,.15);color:var(--amber);border:1px solid rgba(251,191,36,.3)}
+.b-avr{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3)}
+.b-gpu{background:rgba(251,191,36,.15);color:#f59e0b;border:1px solid rgba(251,191,36,.3)}
+.b-driver{background:rgba(125,211,252,.15);color:#7dd3fc;border:1px solid rgba(125,211,252,.3)}
+.b-tool{background:rgba(148,163,184,.15);color:#94a3b8;border:1px solid rgba(148,163,184,.3)}
+.b-bsi{background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3)}
+.b-oth{background:rgba(139,144,168,.15);color:var(--text2);border:1px solid rgba(139,144,168,.2)}
+.b-leave{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.b-training{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+.b-rotate{background:rgba(125,211,252,.1);color:#7dd3fc;border:1px solid rgba(125,211,252,.2)}
+.b-approved{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.2)}
+.b-pending{background:rgba(251,191,36,.1);color:var(--amber);border:1px solid rgba(251,191,36,.2)}
+.b-rejected{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.av{width:24px;height:24px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;font-family:var(--mono);flex-shrink:0}
+/* TASK GROUP CARDS */
+.task-groups{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.task-group{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.task-group-header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.task-group-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.task-group-title{font-weight:600;font-size:13px;flex:1}
+.task-group-reg{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.task-group-body{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px}
+.mech-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:12px}
+.mech-chip.can-edit:hover{border-color:var(--red);cursor:pointer}
+/* ABSENCE GROUP */
+.abs-group{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:16px}
+.abs-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.abs-chip{display:flex;align-items:center;gap:5px;padding:4px 9px;background:var(--bg);border:1px solid var(--border);border-radius:5px;font-size:11px}
+/* CALENDAR */
+.cal-strip{display:flex;gap:5px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
+.cal-day{min-width:46px;padding:7px 5px;border-radius:7px;border:1px solid var(--border);text-align:center;cursor:pointer;background:var(--surface);transition:all .15s;flex-shrink:0}
+.cal-day.work{border-color:rgba(79,142,247,.3)}
+.cal-day.selected{background:var(--accent);border-color:var(--accent)}
+.cal-day.off-day{opacity:.5}
+.cal-day .cdate{font-family:var(--mono);font-size:13px;font-weight:500}
+.cal-day .cday{font-size:10px;color:var(--text3);margin-top:1px}
+.cal-day.selected .cday{color:rgba(255,255,255,.7)}
+.cal-day .cdot{width:4px;height:4px;border-radius:50%;background:var(--amber);margin:3px auto 0}
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:var(--mono);font-size:13px;font-weight:500;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between}
+.form-group{margin-bottom:12px}
+.form-label{font-size:11px;color:var(--text3);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.04em;font-family:var(--mono)}
+.form-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 11px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;transition:border .15s}
+.form-input:focus{border-color:var(--accent)}
+select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b90a8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+/* Multi-select checkboxes */
+.mech-checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;padding:10px;background:var(--bg)}
+.mech-check-item{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:5px;cursor:pointer;font-size:12px;border:1px solid transparent;transition:all .1s}
+.mech-check-item:hover{background:var(--surface);border-color:var(--border)}
+.mech-check-item.checked{background:rgba(79,142,247,.12);border-color:rgba(79,142,247,.3);color:var(--accent2)}
+.mech-check-item input{display:none}
+/* OT */
+.ot-row{display:grid;grid-template-columns:26px 1fr 90px 80px 100px;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border)}
+.ot-row:last-child{border-bottom:none}
+.ot-row:hover{background:rgba(255,255,255,.02)}
+/* SHIFT CAL */
+.shift-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:20px}
+.shift-cell{aspect-ratio:1;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;border:1px solid var(--border);cursor:pointer;transition:all .1s}
+.shift-cell:hover{border-color:var(--accent)}
+.shift-cell.work-c{background:rgba(79,142,247,.12);border-color:rgba(79,142,247,.3);color:var(--accent2)}
+.shift-cell.off-c{background:var(--surface);color:var(--text3)}
+.shift-cell.today-c{outline:2px solid var(--amber);outline-offset:1px}
+.shift-cell.sel-c{outline:2px solid var(--accent);outline-offset:1px}
+.shift-cell .sday{font-size:8px;opacity:.6;margin-top:1px}
+/* NOTICE */
+.notice{background:rgba(79,142,247,.07);border:1px solid rgba(79,142,247,.2);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--text2);margin-bottom:14px}
+/* ROSTER TABLE */
+.num-hi{display:inline-block;background:rgba(79,142,247,.15);color:var(--accent2);border-radius:3px;padding:0 5px;font-family:var(--mono);font-size:11px;min-width:22px;text-align:center}
+.num-zero{color:var(--text3);font-family:var(--mono);font-size:11px}
+.tag-day{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(251,191,36,.1);color:var(--amber);border:1px solid rgba(251,191,36,.2)}
+.tag-night{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(79,142,247,.1);color:var(--accent2);border:1px solid rgba(79,142,247,.2)}
+/* LOGIN */
+.login-wrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.login-wrap.open{display:flex}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:340px;text-align:center}
+.login-err{font-size:11px;color:var(--red);margin-top:6px;display:none}
+.flex{display:flex;align-items:center;gap:8px}
+.hidden{display:none!important}
+.empty{text-align:center;padding:32px 16px;color:var(--text3);font-size:12px}
+.mt8{margin-top:8px}.mb8{margin-bottom:8px}.mb16{margin-bottom:16px}
+.text-mono{font-family:var(--mono)}.text-sm{font-size:12px}.text-xs{font-size:11px}
+.text-muted{color:var(--text3)}.text-green{color:var(--green)}.text-red{color:var(--red)}
+.text-amber{color:var(--amber)}.text-accent{color:var(--accent)}
+.divider{height:1px;background:var(--border);margin:14px 0}
+@media(max-width:600px){.main{padding:12px}.header{padding:10px 12px}.tabs{padding:8px 12px 0}.ot-row{grid-template-columns:22px 1fr 70px 70px}.form-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">✈</div>
+    <div><div class="logo-text">N2 Dashboard</div><div class="logo-sub">NIGHT2 · Duty Management</div></div>
+  </div>
+  <div class="header-right">
+    <select id="yearSelector" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:11px;padding:3px 8px;cursor:pointer" onchange="switchYear(parseInt(this.value))"></select>
+    <div class="shift-pill" id="shiftPill">—</div>
+    <div id="dateDisplay" style="font-family:var(--mono);font-size:11px;color:var(--text3)"></div>
+    <button class="btn btn-ghost btn-sm" id="loginBtn" onclick="openLogin()">Lead Login</button>
+    <button class="btn btn-primary btn-sm hidden" id="logoutBtn" onclick="doLogout()">Logout</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('duty')">📋 Daily Duty</button>
+  <button class="tab" onclick="showTab('summary')">📆 Block Summary</button>
+  <button class="tab" onclick="showTab('counts')">📊 Assignment Counts</button>
+  <button class="tab" onclick="showTab('ot')">⏰ OT Queue</button>
+  <button class="tab" onclick="showTab('roster')">👥 Roster</button>
+  <button class="tab" onclick="showTab('calendar')">📅 Shift Calendar</button>
+  <button class="tab hidden" id="adminTab" onclick="showTab('admin')">⚙️ Admin</button>
+</div>
+
+<!-- DAILY DUTY -->
+<div class="main" id="tab-duty">
+  <div class="cal-strip" id="calStrip"></div>
+  <div class="stats" id="dutyStats"></div>
+  <div class="notice" id="dutyNotice"></div>
+
+  <!-- ATTENDANCE PANEL -->
+  <div id="attendancePanel" style="margin-bottom:16px">
+    <div class="sec-title">Attendance — who is available</div>
+    <div id="attendanceGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin-bottom:10px"></div>
+    <div id="absentGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px"></div>
+  </div>
+
+  <div class="flex mb8">
+    <div class="sec-title" style="flex:1">Tasks today — grouped by type</div>
+    <button class="btn btn-primary btn-sm hidden" id="addAssignBtn" onclick="openAssignModal()">+ Assign Task</button>
+  </div>
+  <div id="taskGroups" class="task-groups"></div>
+  <div class="sec-title">Absences today</div>
+  <div id="absGroup"></div>
+</div>
+
+<!-- BLOCK SUMMARY -->
+<div class="main hidden" id="tab-summary">
+  <div class="flex mb8" style="align-items:center;gap:10px;flex-wrap:wrap">
+    <div>
+      <div style="font-weight:500;font-size:14px" id="summaryBlockLabel">Current work block</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px" id="summaryBlockDates"></div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <button class="btn btn-ghost btn-sm" onclick="summaryPrevBlock()">← Prev</button>
+      <button class="btn btn-ghost btn-sm" onclick="summaryNextBlock()">Next →</button>
+    </div>
+  </div>
+  <div id="summaryContent"></div>
+</div>
+
+<!-- ASSIGNMENT COUNTS -->
+<div class="main hidden" id="tab-counts">
+  <div class="notice">Running totals include data imported from your CC_N2_2026 sheet + new assignments added in this app.</div>
+  <div class="sec-title">Task count per mechanic — all time</div>
+  <div class="twrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>MECHANIC</th>
+          <th>E-CHK</th><th>CC</th><th>RFID</th><th>DEEP CLEAN</th><th>AVR</th><th>GPU</th><th>TOOL</th><th>BSI</th><th>DRIVER</th><th>OTH</th>
+          <th>TOTAL</th>
+        </tr>
+      </thead>
+      <tbody id="countsBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- OT QUEUE -->
+<div class="main hidden" id="tab-ot">
+  <div class="stats" id="otStats"></div>
+  <div class="flex mb8">
+    <div class="sec-title" style="flex:1">Pending OT — grouped by date &amp; shift</div>
+    <button class="btn btn-primary btn-sm" onclick="openOTModal()">+ Request OT</button>
+  </div>
+  <div id="otPendingBody"></div>
+  <div class="sec-title mt8">Approved history</div>
+  <div class="twrap"><div id="otApprovedBody"></div></div>
+</div>
+
+<!-- ROSTER -->
+<div class="main hidden" id="tab-roster">
+  <div class="flex mb8">
+    <div class="sec-title" style="flex:1">Team roster — N2 Mechanics</div>
+    <button class="btn btn-primary btn-sm hidden" id="addMechBtn" onclick="openAddMechModal()">+ Add Mechanic</button>
+  </div>
+  <div class="twrap">
+    <table>
+      <thead><tr><th>#</th><th>NICKNAME</th><th>EMP ID</th><th>STATUS</th><th>OT DAYS</th><th id="rosterActHead" class="hidden">ACTION</th></tr></thead>
+      <tbody id="rosterBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SHIFT CALENDAR -->
+<div class="main hidden" id="tab-calendar">
+  <div class="notice">🌙 NIGHT2 — 4 work / 4 off pattern. Work shift: <b>20:00–08:00</b>. Blue = work night, grey = off. Click any day to jump to it. The calendar works for any date — past or future.</div>
+  <div class="flex mb8" style="justify-content:space-between;align-items:center">
+    <div style="font-family:var(--mono);font-size:12px;color:var(--text3)" id="calRangeLabel"></div>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-ghost btn-sm" onclick="calOffset--;renderCalendar()">← Prev year</button>
+      <button class="btn btn-ghost btn-sm" onclick="calOffset=0;renderCalendar()">Today</button>
+      <button class="btn btn-ghost btn-sm" onclick="calOffset++;renderCalendar()">Next year →</button>
+    </div>
+  </div>
+  <div id="calPages"></div>
+</div>
+
+<!-- ADMIN -->
+<div class="main hidden" id="tab-admin">
+  <div class="notice">Admin panel — lead only. All changes apply immediately.</div>
+
+  <!-- QUARTER CALENDAR UPLOAD -->
+  <div class="sec-title">Quarter calendar</div>
+  <div class="twrap mb8" style="padding:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div>
+        <div style="font-weight:500;font-size:13px">Attendance data</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px" id="quarterStatus">Loaded: Q2 2026 (pre-loaded from your file)</div>
+      </div>
+      <span class="badge b-approved" id="quarterBadge">Loaded</span>
+    </div>
+    <div id="dropZone" style="border:1px dashed var(--border);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all .15s" onclick="document.getElementById('quarterFile').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleQuarterDrop(event)">
+      <div style="font-size:20px;margin-bottom:6px">📂</div>
+      <div style="font-size:13px;font-weight:500">Drop QUARTER_X_20XX.xlsx here</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">or click to browse — N2 sheet will be read automatically</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px">Re-upload anytime to refresh revised leave data</div>
+    </div>
+    <input type="file" id="quarterFile" accept=".xlsx" style="display:none" onchange="handleQuarterFile(this.files[0])"/>
+    <div id="quarterProgress" style="display:none;margin-top:10px;font-size:12px;color:var(--text2)">⏳ Reading file...</div>
+    <div id="quarterResult" style="display:none;margin-top:10px"></div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="sec-title">New year reset</div>
+  <div class="twrap mb8" style="padding:14px 16px">
+    <div style="font-size:13px;font-weight:500;margin-bottom:6px">Start a new year</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.6">When the new year begins, click below to create a fresh slate. OT counts, assignments, and task counts reset to zero. Your team roster and deputy access carry over. All previous year data is preserved and viewable from the year selector in the header.</div>
+    <button class="btn btn-danger" onclick="startNewYear()">🎆 Start New Year</button>
+  </div>
+  <div class="divider"></div>
+  <div class="sec-title">Deputies</div>
+  <div class="twrap mb8"><table><thead><tr><th>NAME</th><th>ACTION</th></tr></thead><tbody id="deputyBody"></tbody></table></div>
+  <button class="btn btn-primary btn-sm mb16" onclick="openDeputyModal()">+ Add Deputy</button>
+  <div class="divider"></div>
+  <div class="sec-title">Manage mechanics</div>
+  <button class="btn btn-primary btn-sm mb8" onclick="openAddMechModal()">+ Add Mechanic</button>
+  <div class="twrap"><table><thead><tr><th>NICKNAME</th><th>EMP ID</th><th>TYPE</th><th>ACTION</th></tr></thead><tbody id="adminMechBody"></tbody></table></div>
+</div>
+
+<!-- ── MODALS ── -->
+<div class="login-wrap" id="loginModal">
+  <div class="login-box">
+    <div style="font-family:var(--mono);font-size:18px;font-weight:500;margin-bottom:4px">NIGHT2 ✈</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:20px">Lead / Deputy login</div>
+    <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="loginPwd" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="login-err" id="loginErr">Incorrect password</div>
+    <div class="flex mt8" style="gap:8px"><button class="btn btn-ghost" style="flex:1" onclick="closeLogin()">Cancel</button><button class="btn btn-primary" style="flex:1" onclick="doLogin()">Login</button></div>
+  </div>
+</div>
+
+<!-- Assign Task Modal — task first, then multi-select people -->
+<div class="modal-bg" id="assignModal">
+  <div class="modal">
+    <div class="modal-title">Assign Task <span onclick="closeModal('assignModal')" style="cursor:pointer;color:var(--text3);font-size:18px">×</span></div>
+    <div class="form-group">
+      <label class="form-label">Task type</label>
+      <select class="form-input" id="asgTask" onchange="onTaskChange()">
+        <option value="E-CHK">E-CHK</option>
+        <option value="CC">CC</option>
+        <option value="RFID">RFID</option>
+        <option value="DEEP CLEAN">DEEP CLEAN</option>
+        <option value="AVR">AVR</option>
+        <option value="GPU">GPU</option>
+        <option value="DRIVER">DRIVER</option>
+        <option value="TOOL">TOOL</option>
+        <option value="BSI">BSI</option>
+        <option value="OTH">OTH</option>
+      </select>
+    </div>
+    <div class="form-group" id="asgRegGroup">
+      <label class="form-label">Aircraft registration</label>
+      <input class="form-input" id="asgReg" placeholder="e.g. HS-DBH"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Select mechanics (tap to select, multiple allowed)</label>
+      <div class="mech-checks" id="mechChecks"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note (optional)</label>
+      <input class="form-input" id="asgNote" placeholder="Any additional note"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('assignModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAssign()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Absence Modal -->
+<div class="modal-bg" id="absModal">
+  <div class="modal">
+    <div class="modal-title">Mark Absence <span onclick="closeModal('absModal')" style="cursor:pointer;color:var(--text3);font-size:18px">×</span></div>
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select class="form-input" id="absType">
+        <option value="LEAVE">LEAVE</option>
+        <option value="TRAINING">TRAINING</option>
+        <option value="ROTATE">ROTATE</option>
+        <option value="OTH">OTH</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Select mechanics</label>
+      <div class="mech-checks" id="absChecks"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('absModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAbsence()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- OT Request Modal -->
+<div class="modal-bg" id="otModal">
+  <div class="modal">
+    <div class="modal-title">OT Request <span onclick="closeModal('otModal')" style="cursor:pointer;color:var(--text3);font-size:18px">×</span></div>
+    <div class="notice text-sm">Requests go to the lead for approval. Only approved OT counts toward your total.</div>
+    <div class="form-group mt8"><label class="form-label">Your name</label><select class="form-input" id="otName"></select></div>
+    <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="otDate"/></div>
+    <div class="form-group"><label class="form-label">Shift</label><select class="form-input" id="otShift"><option value="Day">Day Shift (08:00–20:00)</option><option value="Night">Night Shift (20:00–08:00)</option></select></div>
+    <div class="form-group"><label class="form-label">Reason (optional)</label><input class="form-input" id="otReason" placeholder="Brief reason"/></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('otModal')">Cancel</button><button class="btn btn-primary" onclick="saveOT()">Submit</button></div>
+  </div>
+</div>
+
+<!-- Add Mechanic Modal -->
+<div class="modal-bg" id="addMechModal">
+  <div class="modal">
+    <div class="modal-title">Add Mechanic <span onclick="closeModal('addMechModal')" style="cursor:pointer;color:var(--text3);font-size:18px">×</span></div>
+    <div class="form-group"><label class="form-label">Nickname</label><input class="form-input" id="mechNick" placeholder="e.g. MEEN"/></div>
+    <div class="form-group"><label class="form-label">Employee ID (optional)</label><input class="form-input" id="mechEmpId" placeholder="e.g. 1014261"/></div>
+    <div class="form-group"><label class="form-label">Temporary rotation?</label><select class="form-input" id="mechTemp"><option value="false">No — permanent member</option><option value="true">Yes — temporary rotation</option></select></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('addMechModal')">Cancel</button><button class="btn btn-primary" onclick="saveMech()">Add</button></div>
+  </div>
+</div>
+
+<!-- Deputy Modal -->
+<div class="modal-bg" id="deputyModal">
+  <div class="modal">
+    <div class="modal-title">Add Deputy <span onclick="closeModal('deputyModal')" style="cursor:pointer;color:var(--text3);font-size:18px">×</span></div>
+    <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="depName" placeholder="Deputy name"/></div>
+    <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="depPwd" placeholder="Set a password"/></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('deputyModal')">Cancel</button><button class="btn btn-primary" onclick="saveDeputy()">Add</button></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  CONSTANTS
+// ══════════════════════════════════════
+const LEAD_PWD = 'night2lead';
+// 12 May 2025 = Day 2 of OFF block → so day 1 of off = 11 May
+// Pattern: off days = pos 0-3, work days = pos 4-7
+// 11 May = pos 0 (first off day)
+const SHIFT_START = new Date('2026-05-11T00:00:00'); // pos0=11May2026(off), pos1=12May(today=day2 off)
+function isWorkDay(dateObj){
+  const d=new Date(dateObj); d.setHours(0,0,0,0);
+  const base=new Date(SHIFT_START); base.setHours(0,0,0,0);
+  const diff=Math.round((d-base)/86400000);
+  const pos=((diff%8)+8)%8;
+  return pos>=4;
+}
+
+const TASKS = ['E-CHK','CC','RFID','DEEP CLEAN','AVR','GPU','DRIVER','TOOL','BSI','OTH'];
+const ABSENCE_TYPES = ['LEAVE','TRAINING','ROTATE'];
+const TASK_COLORS = {
+  'E-CHK':  {bg:'rgba(79,142,247,.15)',color:'#7dd3fc',border:'rgba(79,142,247,.3)',icon:'🛩'},
+  'CC':     {bg:'rgba(167,139,250,.15)',color:'#a78bfa',border:'rgba(167,139,250,.3)',icon:'📋'},
+  'RFID':   {bg:'rgba(52,211,153,.15)', color:'#34d399',border:'rgba(52,211,153,.3)', icon:'📡'},
+  'DEEP CLEAN':{bg:'rgba(251,191,36,.15)',color:'#fbbf24',border:'rgba(251,191,36,.3)',icon:'🧹'},
+  'AVR':    {bg:'rgba(248,113,113,.15)',color:'#f87171',border:'rgba(248,113,113,.3)',icon:'⚡'},
+  'GPU':    {bg:'rgba(245,158,11,.15)', color:'#f59e0b',border:'rgba(245,158,11,.3)', icon:'🔋'},
+  'DRIVER': {bg:'rgba(125,211,252,.15)',color:'#7dd3fc',border:'rgba(125,211,252,.3)',icon:'🚗'},
+  'TOOL':   {bg:'rgba(148,163,184,.15)',color:'#94a3b8',border:'rgba(148,163,184,.3)',icon:'🔧'},
+  'BSI':    {bg:'rgba(249,115,22,.15)', color:'#fb923c',border:'rgba(249,115,22,.3)', icon:'🔍'},
+  'OTH':    {bg:'rgba(139,144,168,.15)',color:'#8b90a8',border:'rgba(139,144,168,.2)',icon:'📌'},
+  'LEAVE':  {bg:'rgba(248,113,113,.1)', color:'#f87171',border:'rgba(248,113,113,.2)',icon:'🏖'},
+  'TRAINING':{bg:'rgba(167,139,250,.1)',color:'#a78bfa',border:'rgba(167,139,250,.2)',icon:'📚'},
+  'ROTATE': {bg:'rgba(125,211,252,.1)', color:'#7dd3fc',border:'rgba(125,211,252,.2)',icon:'🔄'},
+};
+const BADGE_MAP = {'E-CHK':'b-echk','CC':'b-cc','RFID':'b-rfid','DEEP CLEAN':'b-deep','AVR':'b-avr','GPU':'b-gpu','DRIVER':'b-driver','TOOL':'b-tool','BSI':'b-bsi','OTH':'b-oth','LEAVE':'b-leave','TRAINING':'b-training','ROTATE':'b-rotate'};
+
+// Totals from CC_N2_2026.xlsx Summary Table — summed Jan–May YTD
+// Exact totals from CC_N2_2026 Summary Table (summed JAN+FEB+MAR+APR+MAY)
+// Columns: E-CHK | AVR | CC | TOOL | GPU | RFID | DEEP CLEAN | DRIVER
+// Exact values from Summary Table - 2026 (cols: E-CHK,AVR,CC,TOOL,GPU,RFID,DEEPCLEAN,DRIVER)
+const SEED_COUNTS = {
+  // Updated from CC_N2_2026 v3 (latest)
+  ACT:    {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:0, deep:0, driver:0,bsi:0,oth:0},
+  TWO:    {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:0, deep:0, driver:0,bsi:0,oth:0},
+  THWONG: {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:0, deep:0, driver:0,bsi:0,oth:0},
+  CHAMP:  {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:0, deep:0, driver:0,bsi:0,oth:0},
+  GOD:    {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:0, deep:0, driver:0,bsi:0,oth:0},
+  CHOK:   {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:0, deep:0, driver:0,bsi:0,oth:0},
+  JAE:    {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:0, deep:0, driver:0,bsi:0,oth:0},
+  VEE:    {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:0, deep:0, driver:0,bsi:0,oth:0},
+  TON:    {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:3, deep:2, driver:0,bsi:0,oth:0},
+  LG:     {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:3, deep:2, driver:0,bsi:0,oth:0},
+  MARK:   {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:3, deep:1, driver:0,bsi:0,oth:0},
+  MINK:   {echk:0,avr:0,cc:6, tool:0,gpu:0,rfid:2, deep:3, driver:0,bsi:0,oth:0},
+  NAHM:   {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:1, deep:0, driver:0,bsi:0,oth:0},
+  MEEN:   {echk:1,avr:0,cc:0, tool:0,gpu:0,rfid:3, deep:2, driver:0,bsi:0,oth:0},
+  GUS:    {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:3, deep:3, driver:0,bsi:0,oth:0},
+  MADEAW: {echk:0,avr:0,cc:6, tool:0,gpu:0,rfid:2, deep:2, driver:0,bsi:0,oth:0},
+  CP:     {echk:1,avr:0,cc:10,tool:0,gpu:0,rfid:3, deep:2, driver:0,bsi:0,oth:0},
+  GIANT:  {echk:1,avr:0,cc:10,tool:0,gpu:0,rfid:3, deep:2, driver:0,bsi:0,oth:0},
+  TOH:    {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:0, deep:0, driver:0,bsi:0,oth:0},
+  POND3:  {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:3, deep:1, driver:0,bsi:0,oth:0},
+  RPG:    {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:3, deep:2, driver:0,bsi:0,oth:0},
+  PEEM:   {echk:1,avr:0,cc:0, tool:0,gpu:0,rfid:2, deep:2, driver:0,bsi:0,oth:0},
+  MAC:    {echk:2,avr:0,cc:8, tool:0,gpu:0,rfid:4, deep:2, driver:0,bsi:0,oth:0},
+  GUIDE:  {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:1, deep:1, driver:0,bsi:0,oth:0},
+  POOM:   {echk:1,avr:0,cc:8, tool:0,gpu:0,rfid:3, deep:2, driver:0,bsi:0,oth:0},
+  EARTH:  {echk:1,avr:0,cc:10,tool:0,gpu:0,rfid:3, deep:3, driver:0,bsi:0,oth:0},
+  YOD:    {echk:0,avr:0,cc:10,tool:0,gpu:0,rfid:3, deep:2, driver:0,bsi:0,oth:0},
+  STANG:  {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:3, deep:4, driver:0,bsi:0,oth:0},
+  OPAL:   {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:4, deep:4, driver:0,bsi:0,oth:0},
+  BALLON: {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:0, deep:0, driver:0,bsi:0,oth:0},
+  PP:     {echk:0,avr:0,cc:0, tool:0,gpu:0,rfid:4, deep:3, driver:0,bsi:0,oth:0},
+  TOON:   {echk:2,avr:0,cc:0, tool:0,gpu:0,rfid:3, deep:2, driver:0,bsi:0,oth:0},
+  'NONT PJ':{echk:0,avr:0,cc:0,tool:0,gpu:0,rfid:3,deep:2, driver:0,bsi:0,oth:0},
+  ALEX:   {echk:2,avr:0,cc:0, tool:0,gpu:0,rfid:3, deep:1, driver:0,bsi:0,oth:0},
+};
+
+// Quarter 2 2026 attendance — parsed from QUARTER_2_2026.xlsx N2 sheet
+// Keys = mechanic nickname, values = {date: code} for non-shift days only
+// Codes: L=Leave, OTH=Other duty, T=Training, RO=Rotate, RESIGN=resigned
+const QUARTER_ATTENDANCE = {"ACT":{"2026-05-09":"L","2026-05-10":"L","2026-05-31":"L","2026-06-01":"L","2026-06-02":"L","2026-06-03":"L"},"TWO":{"2026-05-23":"L","2026-05-24":"L","2026-05-25":"L","2026-05-26":"L","2026-06-18":"L","2026-06-19":"L"},"THWONG":{"2026-04-21":"L","2026-04-22":"L","2026-04-23":"OTH","2026-04-24":"OTH","2026-04-25":"OTH","2026-04-26":"OTH","2026-04-27":"OTH","2026-04-28":"OTH","2026-04-29":"OTH","2026-04-30":"OTH","2026-05-01":"OTH","2026-05-02":"OTH","2026-05-03":"OTH","2026-05-04":"OTH","2026-05-05":"OTH","2026-05-06":"OTH","2026-05-07":"OTH","2026-05-08":"OTH","2026-05-09":"OTH","2026-05-10":"OTH","2026-05-11":"OTH","2026-05-12":"OTH","2026-05-13":"OTH","2026-05-14":"OTH","2026-05-15":"OTH","2026-05-16":"OTH","2026-05-17":"OTH","2026-05-18":"OTH","2026-05-23":"L","2026-05-24":"L","2026-05-29":"OTH"},"CHAMP":{"2026-04-07":"L","2026-04-08":"L","2026-04-10":"OTH","2026-04-11":"OTH","2026-04-12":"OTH","2026-04-13":"OTH","2026-04-14":"OTH","2026-04-15":"OTH","2026-04-16":"OTH","2026-05-06":"T","2026-05-07":"T","2026-05-08":"T","2026-05-09":"L","2026-05-10":"L","2026-05-17":"L","2026-05-18":"L","2026-05-28":"OTH"},"GOD":{"2026-04-05":"L","2026-04-06":"L","2026-05-06":"T","2026-05-07":"T","2026-05-08":"T","2026-05-15":"L","2026-05-16":"L","2026-06-03":"OTH","2026-06-04":"OTH","2026-06-08":"L","2026-06-09":"L"},"CHOK":{"2026-04-29":"L","2026-04-30":"L","2026-05-01":"L","2026-05-02":"L","2026-05-06":"T","2026-05-07":"T","2026-05-08":"T","2026-06-02":"L","2026-06-03":"L","2026-06-09":"OTH","2026-06-10":"OTH"},"JAE":{"2026-04-21":"L","2026-04-22":"L","2026-04-23":"L","2026-04-24":"L","2026-05-06":"T","2026-05-07":"T","2026-05-08":"T","2026-06-09":"L","2026-06-10":"L","2026-06-11":"OTH","2026-06-12":"OTH"},"Vee":{"2026-04-13":"L","2026-04-14":"L","2026-04-15":"L","2026-04-16":"L","2026-05-06":"T","2026-05-07":"T","2026-05-08":"T","2026-06-02":"L","2026-06-03":"L","2026-06-16":"OTH"},"TON":{"2026-04-23":"L","2026-04-24":"L","2026-05-15":"OTH","2026-05-16":"OTH","2026-05-25":"L","2026-05-26":"L","2026-06-18":"L","2026-06-19":"L"},"LG":{"2026-04-05":"L","2026-04-06":"L","2026-05-08":"T","2026-05-09":"T","2026-05-10":"T","2026-05-15":"T","2026-05-16":"T","2026-05-17":"T","2026-05-23":"L","2026-05-24":"L","2026-06-18":"L","2026-06-19":"L"},"MARK":{"2026-04-10":"OTH","2026-04-11":"OTH","2026-04-12":"OTH","2026-04-13":"OTH","2026-04-14":"OTH","2026-04-15":"OTH","2026-04-16":"OTH","2026-04-29":"L","2026-04-30":"L","2026-05-07":"L","2026-05-08":"L","2026-05-09":"L","2026-05-10":"L","2026-05-15":"OTH","2026-05-16":"OTH","2026-05-17":"OTH","2026-05-18":"OTH"},"MINK":{"2026-04-21":"OTH","2026-04-22":"OTH","2026-04-23":"OTH","2026-04-24":"OTH","2026-04-25":"OTH","2026-04-26":"OTH","2026-04-27":"OTH","2026-04-28":"OTH","2026-04-29":"OTH","2026-04-30":"OTH","2026-05-01":"OTH","2026-05-02":"OTH","2026-05-03":"OTH","2026-05-04":"OTH","2026-05-05":"OTH","2026-05-06":"OTH","2026-05-07":"OTH","2026-05-08":"OTH","2026-05-09":"OTH","2026-05-10":"OTH","2026-05-11":"OTH","2026-05-12":"OTH","2026-05-13":"OTH","2026-05-14":"OTH","2026-05-15":"OTH","2026-05-16":"OTH","2026-05-17":"OTH","2026-05-18":"OTH","2026-05-19":"OTH","2026-05-20":"OTH","2026-05-21":"OTH","2026-05-22":"OTH","2026-05-23":"OTH","2026-05-24":"OTH","2026-05-25":"OTH","2026-05-26":"OTH","2026-05-31":"L","2026-06-01":"L","2026-06-24":"L","2026-06-25":"L","2026-06-26":"L","2026-06-27":"L"},"MEEN":{},"GUS":{"2026-05-01":"L","2026-05-02":"L","2026-05-31":"L","2026-06-01":"L","2026-06-02":"L","2026-06-03":"L"},"MADEAW":{"2026-04-29":"L","2026-04-30":"L","2026-05-01":"OTH","2026-05-02":"OTH","2026-05-03":"OTH","2026-05-04":"OTH","2026-05-07":"OTH","2026-05-08":"OTH","2026-05-09":"OTH","2026-05-10":"OTH","2026-05-11":"OTH","2026-05-12":"OTH","2026-05-13":"OTH","2026-05-16":"OTH","2026-05-17":"OTH","2026-05-18":"OTH","2026-05-19":"OTH","2026-05-20":"OTH","2026-05-21":"OTH","2026-05-22":"OTH","2026-05-25":"L","2026-05-26":"L","2026-06-26":"L","2026-06-27":"L"},"CP":{"2026-05-07":"L","2026-05-08":"L","2026-05-09":"L","2026-05-10":"L","2026-06-10":"L","2026-06-11":"L"},"GIANT":{"2026-04-13":"L","2026-04-14":"L","2026-04-15":"L","2026-04-16":"L","2026-05-09":"L","2026-05-10":"L","2026-05-23":"OTH","2026-05-24":"OTH","2026-05-25":"OTH","2026-05-26":"OTH","2026-05-27":"OTH","2026-05-28":"OTH","2026-05-29":"OTH","2026-05-30":"OTH","2026-05-31":"OTH","2026-06-01":"OTH","2026-06-02":"OTH","2026-06-03":"OTH","2026-06-04":"OTH","2026-06-05":"OTH","2026-06-06":"OTH","2026-06-07":"OTH","2026-06-08":"OTH","2026-06-09":"OTH","2026-06-10":"OTH","2026-06-11":"OTH","2026-06-12":"OTH","2026-06-13":"OTH","2026-06-14":"OTH","2026-06-15":"OTH","2026-06-16":"OTH","2026-06-17":"OTH","2026-06-18":"OTH","2026-06-19":"OTH","2026-06-20":"OTH","2026-06-21":"OTH","2026-06-22":"OTH","2026-06-23":"OTH","2026-06-24":"OTH","2026-06-25":"OTH","2026-06-26":"OTH","2026-06-27":"OTH","2026-06-28":"OTH","2026-06-29":"OTH","2026-06-30":"OTH"},"TOH":{"2026-04-15":"L","2026-04-16":"L","2026-05-07":"L","2026-05-08":"L","2026-05-09":"L","2026-05-10":"L","2026-05-11":"RESIGN","2026-05-15":"L","2026-05-16":"L","2026-05-17":"L","2026-05-18":"L","2026-05-19":"RESIGN","2026-05-23":"L","2026-05-24":"L","2026-05-25":"L","2026-05-26":"L","2026-05-27":"RESIGN","2026-05-31":"L"},"POND3":{"2026-05-01":"OTH","2026-05-02":"OTH","2026-05-03":"OTH","2026-05-04":"OTH","2026-05-07":"OTH","2026-05-08":"OTH","2026-05-09":"OTH","2026-05-10":"OTH","2026-05-11":"OTH","2026-05-12":"OTH","2026-05-13":"OTH","2026-05-15":"OTH","2026-05-16":"OTH","2026-05-25":"L","2026-05-26":"L","2026-06-24":"L","2026-06-25":"L","2026-06-26":"L","2026-06-27":"L"},"RPG":{"2026-04-13":"L","2026-04-14":"L","2026-04-29":"L","2026-04-30":"L","2026-06-08":"L","2026-06-09":"L"},"PEEM":{"2026-05-23":"L","2026-05-24":"L","2026-05-25":"L","2026-05-26":"L","2026-06-18":"L","2026-06-19":"L"},"MAC":{"2026-04-05":"L","2026-04-06":"L","2026-04-07":"L","2026-04-08":"L","2026-06-16":"L","2026-06-17":"L"},"GUIDE":{"2026-04-03":"OTH","2026-04-04":"OTH","2026-04-05":"L","2026-04-06":"OTH","2026-04-11":"OTH","2026-04-12":"OTH","2026-04-13":"L","2026-04-14":"OTH","2026-04-19":"OTH","2026-04-20":"OTH","2026-04-21":"OTH","2026-04-22":"OTH","2026-04-27":"OTH","2026-04-28":"OTH","2026-04-29":"OTH","2026-04-30":"OTH"},"POOM":{"2026-04-21":"L","2026-04-22":"L","2026-04-23":"L","2026-04-24":"L","2026-05-15":"OTH","2026-05-16":"OTH","2026-05-17":"OTH","2026-05-18":"OTH","2026-05-19":"OTH","2026-05-20":"OTH","2026-05-21":"OTH","2026-05-22":"OTH"},"EARTH":{"2026-04-05":"L","2026-04-06":"L","2026-04-07":"L","2026-04-08":"L","2026-05-31":"L","2026-06-01":"L"},"YOD":{"2026-04-15":"L","2026-04-16":"L","2026-05-01":"L","2026-05-02":"L","2026-05-15":"OTH","2026-05-16":"OTH","2026-05-17":"L","2026-05-18":"L"},"STANG":{"2026-04-21":"L","2026-04-22":"L","2026-05-15":"L","2026-05-16":"L","2026-05-17":"L","2026-05-18":"L"},"OPAL":{"2026-04-05":"L","2026-04-06":"L","2026-04-07":"L","2026-04-08":"L","2026-04-15":"L","2026-05-31":"L","2026-06-01":"L"},"PP":{"2026-04-13":"L","2026-04-14":"L","2026-04-15":"L","2026-04-16":"L"},"TOON":{"2026-04-29":"L","2026-04-30":"L","2026-05-08":"L","2026-05-15":"OTH","2026-05-16":"OTH","2026-06-24":"L","2026-06-25":"L","2026-06-26":"L","2026-06-27":"L"},"NONT PJ":{"2026-05-01":"L","2026-05-02":"L","2026-05-15":"OTH","2026-05-16":"OTH","2026-06-16":"L","2026-06-17":"L","2026-06-18":"L","2026-06-19":"L","2026-06-25":"T","2026-06-26":"T"},"ALEX":{"2026-04-13":"L","2026-04-14":"L","2026-05-15":"L","2026-05-16":"L","2026-05-23":"L","2026-05-24":"L","2026-06-25":"T","2026-06-26":"T"},"NAHM":{"2026-04-01":"OTH","2026-04-02":"OTH","2026-04-07":"OTH","2026-04-08":"OTH","2026-04-09":"OTH","2026-04-10":"OTH","2026-04-15":"OTH","2026-04-16":"OTH","2026-04-17":"OTH","2026-04-18":"OTH","2026-04-23":"OTH","2026-04-24":"OTH","2026-04-25":"OTH","2026-04-26":"OTH","2026-06-24":"L","2026-06-25":"L","2026-06-26":"L","2026-06-27":"L"}};
+
+// Get attendance code — checks uploaded quarter file first, then pre-loaded data
+function getAttendance(mechId, dateStr){
+  const src=(state.quarterAttendance&&state.quarterAttendance[mechId])
+    ? state.quarterAttendance
+    : QUARTER_ATTENDANCE;
+  const d=src[mechId];
+  if(!d) return null;
+  const code=d[dateStr];
+  if(!code) return null;
+  return code==='RESIGN'?'RESIGN':code;
+}
+
+const SEED_OT = {
+  // Updated from STBY_OT_N2_2026 SUMMARY sheet
+  ACT:0,TWO:0,THWONG:0,CHAMP:0,GOD:0,CHOK:0,JAE:0,VEE:0,
+  TON:0,LG:0,MARK:0,MINK:0,NAHM:0,
+  MEEN:12,GUS:10,MADEAW:0,CP:13,GIANT:11,TOH:0,POND3:0,RPG:0,PEEM:0,
+  MAC:17,GUIDE:8,POOM:0,EARTH:2,YOD:15,STANG:7,OPAL:0,BALLON:0,PP:0,
+  TOON:7,'NONT PJ':5,ALEX:10
+};
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+// state declared after all functions below
+let activeYear = new Date().getFullYear();
+let viewYear = activeYear;
+
+function yearKey(yr){ return `n2_year_${yr}`; }
+
+function defaultYearData(yr){
+  // Year data — resets each year
+  const isCurrentYear = yr===2026;
+  return {
+    assignments:{},
+    absences:{},
+    otRequests:[],
+    otApproved: isCurrentYear ? {...SEED_OT} : {},
+    taskCounts:{},
+    quarterAttendance:null,
+    quarterFile:null,
+    quarterLoaded:null,
+  };
+}
+
+function loadYearData(yr){
+  try{
+    const s=localStorage.getItem(yearKey(yr));
+    if(s) return JSON.parse(s);
+  }catch(e){}
+  return defaultYearData(yr);
+}
+
+function saveYearData(yr,data){
+  try{ localStorage.setItem(yearKey(yr), JSON.stringify(data)); }catch(e){}
+}
+
+// Global state = mechanics + deputies (permanent) + year data (per year)
+function loadState(){
+  // Load permanent data
+  let perm={mechanics:null,deputies:[],selectedDate:todayStr()};
+  try{
+    const s=localStorage.getItem('n2_perm');
+    if(s) perm={...perm,...JSON.parse(s)};
+  }catch(e){}
+  if(!perm.mechanics) perm.mechanics=defaultState_mechanics();
+
+  // Load year data for active year
+  const yd=loadYearData(activeYear);
+  return {...perm,...yd};
+}
+
+function saveState(){
+  // Save permanent data separately
+  const perm={mechanics:state.mechanics, deputies:state.deputies, selectedDate:state.selectedDate};
+  try{ localStorage.setItem('n2_perm', JSON.stringify(perm)); }catch(e){}
+  // Save year data
+  const yd={
+    assignments:state.assignments, absences:state.absences,
+    otRequests:state.otRequests, otApproved:state.otApproved,
+    taskCounts:state.taskCounts, quarterAttendance:state.quarterAttendance,
+    quarterFile:state.quarterFile, quarterLoaded:state.quarterLoaded,
+  };
+  saveYearData(activeYear, yd);
+}
+
+// Migrate old single-key state if exists
+(function migrateLegacy(){
+  const OLD_KEY='n2v25';
+  try{
+    const s=localStorage.getItem(OLD_KEY);
+    if(s && !localStorage.getItem('n2_perm')){
+      const old=JSON.parse(s);
+      const perm={mechanics:old.mechanics||[], deputies:old.deputies||[], selectedDate:old.selectedDate||todayStr()};
+      localStorage.setItem('n2_perm', JSON.stringify(perm));
+      const yd={assignments:old.assignments||{},absences:old.absences||{},
+        otRequests:old.otRequests||[],otApproved:old.otApproved||{},
+        taskCounts:old.taskCounts||{},quarterAttendance:old.quarterAttendance||null,
+        quarterFile:old.quarterFile||null,quarterLoaded:old.quarterLoaded||null};
+      saveYearData(2026, yd);
+      localStorage.removeItem(OLD_KEY);
+    }
+  }catch(e){}
+})();
+
+function defaultState_mechanics(){
+  return [
+    {id:'ACT',empId:'1009162',temp:false},{id:'TWO',empId:'1012868',temp:false},
+    {id:'THWONG',empId:'1011371',temp:false},{id:'CHAMP',empId:'1010854',temp:false},
+    {id:'GOD',empId:'1011596',temp:false},{id:'CHOK',empId:'1035791',temp:false},
+    {id:'JAE',empId:'1036583',temp:false},{id:'VEE',empId:'1019553',temp:false},
+    {id:'TON',empId:'1000437',temp:false},{id:'LG',empId:'1005825',temp:false},
+    {id:'MARK',empId:'1010824',temp:false},{id:'MINK',empId:'1013240',temp:false},
+    {id:'NAHM',empId:'1013241',temp:false},{id:'MEEN',empId:'1014261',temp:false},
+    {id:'GUS',empId:'1015520',temp:false},{id:'MADEAW',empId:'1017600',temp:false},
+    {id:'CP',empId:'1017626',temp:false},{id:'GIANT',empId:'1021440',temp:false},
+    {id:'TOH',empId:'1023372',temp:false},{id:'POND3',empId:'1023384',temp:false},
+    {id:'RPG',empId:'1023388',temp:false},{id:'PEEM',empId:'1025878',temp:false},
+    {id:'MAC',empId:'1042500',temp:false},{id:'GUIDE',empId:'1042508',temp:false},
+    {id:'POOM',empId:'1042519',temp:false},{id:'EARTH',empId:'1042522',temp:false},
+    {id:'YOD',empId:'1042524',temp:false},{id:'STANG',empId:'1046134',temp:false},
+    {id:'OPAL',empId:'1046145',temp:false},{id:'BALLON',empId:'1046777',temp:false},
+    {id:'PP',empId:'1046778',temp:false},{id:'TOON',empId:'1046779',temp:false},
+    {id:'NONT PJ',empId:'1046781',temp:false},{id:'ALEX',empId:'1046783',temp:false}
+  ];
+}
+
+function switchYear(yr){
+  // Save current year data first
+  saveState();
+  // Switch
+  activeYear=yr; viewYear=yr;
+  const yd=loadYearData(yr);
+  state.assignments=yd.assignments||{};
+  state.absences=yd.absences||{};
+  state.otRequests=yd.otRequests||[];
+  state.otApproved=yd.otApproved||(yr===2026?{...SEED_OT}:{});
+  state.taskCounts=yd.taskCounts||{};
+  state.quarterAttendance=yd.quarterAttendance||null;
+  state.quarterFile=yd.quarterFile||null;
+  state.quarterLoaded=yd.quarterLoaded||null;
+  state.selectedDate=todayStr();
+  updateYearUI();
+  renderAll();
+}
+
+function startNewYear(){
+  const nextYr=new Date().getFullYear();
+  if(!confirm(`Start new year ${nextYr}? This will create a fresh slate for ${nextYr}. All ${nextYr-1} data is preserved and viewable anytime.`)) return;
+  activeYear=nextYr;
+  // Carry over mechanics (no OT history for new year)
+  const yd=defaultYearData(nextYr);
+  saveYearData(nextYr, yd);
+  switchYear(nextYr);
+  alert(`✓ New year ${nextYr} started! Your team roster carries over. OT and assignments reset to zero.`);
+}
+
+function getAvailableYears(){
+  const years=new Set([activeYear]);
+  for(let k in localStorage){
+    const m=k.match(/^n2_year_(\d{4})$/);
+    if(m) years.add(parseInt(m[1]));
+  }
+  return [...years].sort((a,b)=>b-a);
+}
+
+function updateYearUI(){
+  const yrs=getAvailableYears();
+  const sel=document.getElementById('yearSelector');
+  if(sel){
+    sel.innerHTML=yrs.map(y=>`<option value="${y}" ${y===activeYear?'selected':''}>${y}${y===new Date().getFullYear()?' (current)':''}</option>`).join('');
+  }
+  const badge=document.getElementById('yearBadge');
+  if(badge) badge.textContent=activeYear;
+}
+
+function todayStr(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function dateToStr(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function fmtDate(str){
+  const [y,m,d]=str.split('-');
+  const dt=new Date(+y,+m-1,+d);
+  return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+function dayName(str){
+  const [y,m,d]=str.split('-');
+  return new Date(+y,+m-1,+d).toLocaleDateString('en',{weekday:'short'});
+}
+
+// ══════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════
+let isAdmin=false,canEdit=false;
+function openLogin(){ document.getElementById('loginModal').classList.add('open'); document.getElementById('loginPwd').focus(); }
+function closeLogin(){ document.getElementById('loginModal').classList.remove('open'); }
+function doLogin(){
+  const pwd=document.getElementById('loginPwd').value;
+  const err=document.getElementById('loginErr');
+  if(pwd===LEAD_PWD){ isAdmin=true; canEdit=true; closeLogin(); applyAuth(); renderAll(); document.getElementById('loginPwd').value=''; err.style.display='none'; return; }
+  const dep=state.deputies.find(d=>d.pwd===pwd);
+  if(dep){ isAdmin=false; canEdit=true; closeLogin(); applyAuth(); renderAll(); document.getElementById('loginPwd').value=''; err.style.display='none'; return; }
+  err.style.display='block';
+}
+function doLogout(){ isAdmin=false; canEdit=false; applyAuth(); renderAll(); }
+function applyAuth(){
+  const show=(id,v)=>{const el=document.getElementById(id); if(el){el.classList.toggle('hidden',!v);}};
+  show('loginBtn',!canEdit); show('logoutBtn',canEdit);
+  show('addAssignBtn',canEdit); show('addMechBtn',canEdit);
+  show('adminTab',isAdmin); show('rosterActHead',canEdit);
+  document.querySelectorAll('.lead-only').forEach(el=>el.classList.toggle('hidden',!canEdit));
+}
+
+// ══════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════
+const TABIDS=['duty','summary','counts','ot','roster','calendar','admin'];
+function showTab(name){
+  TABIDS.forEach(t=>{ document.getElementById('tab-'+t).classList.toggle('hidden',t!==name); });
+  document.querySelectorAll('.tab').forEach((b,i)=>{ b.classList.toggle('active',['duty','summary','counts','ot','roster','calendar','admin'][i]===name); });
+  if(name==='duty') renderDuty();
+  if(name==='summary') renderBlockSummary();
+  if(name==='counts') renderCounts();
+  if(name==='ot') renderOT();
+  if(name==='roster') renderRoster();
+  if(name==='calendar') renderCalendar();
+  if(name==='admin') renderAdmin();
+}
+
+// ══════════════════════════════════════
+//  CALENDAR STRIP
+// ══════════════════════════════════════
+// Returns array of {id, code} for mechanics absent on dateStr per quarter calendar
+function getAbsentFromQuarter(dateStr){
+  return state.mechanics
+    .map(m=>({ id:m.id, code:getAttendance(m.id, dateStr) }))
+    .filter(x=>x.code && x.code!=='N');
+}
+
+const CODE_LABEL = {L:'Leave',OTH:'Other Duty',T:'Training',RO:'Rotate',RESIGN:'Resigned'};
+
+// Card color per status: border-color, background, text-color, label-bg, label-color
+const STATUS_THEME = {
+  available: {
+    border:'#34d399',bg:'rgba(52,211,153,.08)',nameColor:'#34d399',
+    tagBg:'rgba(52,211,153,.2)',tagColor:'#34d399',tagText:'Available'
+  },
+  assigned: {
+    border:'#4f8ef7',bg:'rgba(79,142,247,.1)',nameColor:'#7dd3fc',
+    tagBg:'rgba(79,142,247,.2)',tagColor:'#7dd3fc',tagText:'✓ Assigned'
+  },
+  L: {
+    border:'#f87171',bg:'rgba(248,113,113,.08)',nameColor:'#f87171',
+    tagBg:'rgba(248,113,113,.2)',tagColor:'#f87171',tagText:'Leave'
+  },
+  OTH: {
+    border:'#fbbf24',bg:'rgba(251,191,36,.08)',nameColor:'#fbbf24',
+    tagBg:'rgba(251,191,36,.2)',tagColor:'#fbbf24',tagText:'Other Duty'
+  },
+  T: {
+    border:'#a78bfa',bg:'rgba(167,139,250,.08)',nameColor:'#a78bfa',
+    tagBg:'rgba(167,139,250,.2)',tagColor:'#a78bfa',tagText:'Training'
+  },
+  RO: {
+    border:'#7dd3fc',bg:'rgba(125,211,252,.08)',nameColor:'#7dd3fc',
+    tagBg:'rgba(125,211,252,.2)',tagColor:'#7dd3fc',tagText:'Rotate'
+  },
+  RESIGN: {
+    border:'#f87171',bg:'rgba(248,113,113,.05)',nameColor:'#888780',
+    tagBg:'rgba(248,113,113,.15)',tagColor:'#f87171',tagText:'Resigned'
+  },
+};
+
+function makeCard(mechId,themeKey){
+  const t = STATUS_THEME[themeKey]||STATUS_THEME.OTH;
+  return `<div style="border:1px solid ${t.border};border-radius:var(--border-radius-md);padding:8px 10px;display:flex;align-items:center;gap:8px;background:${t.bg}">
+    ${mechAv(mechId)}
+    <div style="min-width:0">
+      <div style="font-weight:500;font-size:12px;color:${t.nameColor};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${mechId}</div>
+      <div style="font-size:10px;margin-top:2px;padding:1px 6px;border-radius:3px;display:inline-block;background:${t.tagBg};color:${t.tagColor};font-weight:500">${t.tagText}</div>
+    </div>
+  </div>`;
+}
+
+function sectionLabel(text){
+  return `<div style="grid-column:1/-1;font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:10px;margin-bottom:2px;padding-bottom:4px;border-bottom:0.5px solid var(--border)">${text}</div>`;
+}
+
+function renderAttendance(ds, allAbsent, quarterAbsent){
+  const allGrid = document.getElementById('attendanceGrid');
+  document.getElementById('absentGrid').innerHTML='';
+  const assigned = new Set((state.assignments[ds]||[]).flatMap(a=>a.mechs||[]));
+  const absentMap = {};
+  quarterAbsent.forEach(a=>{ absentMap[a.id]=a.code; });
+
+  const groups = {assigned:[],available:[],L:[],OTH:[],T:[],RO:[],RESIGN:[]};
+  state.mechanics.forEach(m=>{
+    const code = absentMap[m.id];
+    if(code){ (groups[code]||groups.OTH).push(m.id); }
+    else if(assigned.has(m.id)){ groups.assigned.push(m.id); }
+    else { groups.available.push(m.id); }
+  });
+
+  let html='';
+  if(groups.assigned.length){ html+=sectionLabel(`Assigned (${groups.assigned.length})`); html+=groups.assigned.map(id=>makeCard(id,'assigned')).join(''); }
+  if(groups.available.length){ html+=sectionLabel(`Available (${groups.available.length})`); html+=groups.available.map(id=>makeCard(id,'available')).join(''); }
+  if(groups.L.length){ html+=sectionLabel(`Leave (${groups.L.length})`); html+=groups.L.map(id=>makeCard(id,'L')).join(''); }
+  if(groups.OTH.length){ html+=sectionLabel(`Other Duty (${groups.OTH.length})`); html+=groups.OTH.map(id=>makeCard(id,'OTH')).join(''); }
+  if(groups.T.length){ html+=sectionLabel(`Training (${groups.T.length})`); html+=groups.T.map(id=>makeCard(id,'T')).join(''); }
+  if(groups.RO.length){ html+=sectionLabel(`Rotate (${groups.RO.length})`); html+=groups.RO.map(id=>makeCard(id,'RO')).join(''); }
+  if(groups.RESIGN.length){ html+=sectionLabel(`Resigned (${groups.RESIGN.length})`); html+=groups.RESIGN.map(id=>makeCard(id,'RESIGN')).join(''); }
+
+  allGrid.innerHTML=html;
+}
+
+function renderCalStrip(){
+  const strip=document.getElementById('calStrip'); strip.innerHTML='';
+  const sel=state.selectedDate;
+  const base=new Date(sel+'T00:00:00');
+  for(let i=-3;i<=12;i++){
+    const d=new Date(base); d.setDate(d.getDate()+i);
+    const ds=dateToStr(d);
+    const work=isWorkDay(d); const isSel=ds===sel; const isToday=ds===todayStr();
+    const hasA=(state.assignments[ds]||[]).length>0;
+    const el=document.createElement('div');
+    el.className=`cal-day ${work?'work':'off-day'} ${isSel?'selected':''}`;
+    if(isToday&&!isSel) el.style.borderColor='var(--amber)';
+    el.innerHTML=`<div class="cdate">${d.getDate()}</div><div class="cday">${d.toLocaleDateString('en',{weekday:'short'})}</div>${hasA?'<div class="cdot"></div>':''}`;
+    el.onclick=()=>{ state.selectedDate=ds; saveState(); renderDuty(); };
+    strip.appendChild(el);
+  }
+}
+
+// ══════════════════════════════════════
+//  DAILY DUTY — grouped by task
+// ══════════════════════════════════════
+function renderDuty(){
+  renderCalStrip();
+  const ds=state.selectedDate;
+  const work=isWorkDay(new Date(ds));
+  document.getElementById('shiftPill').className=`shift-pill ${work?'shift-work':'shift-off'}`;
+  document.getElementById('shiftPill').textContent=work?'● ON SHIFT  20:00–08:00':'● DAY OFF';
+  document.getElementById('dateDisplay').textContent=fmtDate(ds)+' '+dayName(ds);
+
+  const assigns=state.assignments[ds]||[];
+  const absences=state.absences[ds]||[];
+  const assignedMechs=new Set(assigns.flatMap(a=>a.mechs||[]));
+  const absMechs=new Set(absences.flatMap(a=>a.mechs||[]));
+
+  // Build quarter attendance for this date
+  const quarterAbsent = getAbsentFromQuarter(ds);
+  const allAbsent = new Set([...absMechs, ...quarterAbsent.map(a=>a.id)]);
+  const availableCount = state.mechanics.filter(m=>!allAbsent.has(m.id)).length;
+
+  // Stats
+  document.getElementById('dutyStats').innerHTML=`
+    <div class="stat"><div class="stat-num text-accent">${availableCount}</div><div class="stat-lbl">Available</div></div>
+    <div class="stat"><div class="stat-num text-green">${assignedMechs.size}</div><div class="stat-lbl">Assigned</div></div>
+    <div class="stat"><div class="stat-num text-amber">${allAbsent.size}</div><div class="stat-lbl">Absent</div></div>
+    <div class="stat"><div class="stat-num text-red">${assigns.filter(a=>a.task==='E-CHK').flatMap(a=>a.mechs||[]).length}</div><div class="stat-lbl">On E-CHK</div></div>
+    <div class="stat"><div class="stat-num">${availableCount-assignedMechs.size}</div><div class="stat-lbl">Unassigned</div></div>`;
+
+  // Notice
+  const echkGroups=assigns.filter(a=>a.task==='E-CHK');
+  const echkNames=echkGroups.flatMap(a=>a.mechs||[]);
+  document.getElementById('dutyNotice').innerHTML=echkNames.length
+    ?`🛩 <b>E-CHK today:</b> ${echkNames.join(' · ')}${echkGroups[0]?.reg?' — '+echkGroups[0].reg:''}`
+    :`No E-CHK assigned for ${fmtDate(ds)}. ${work?'Work night (20:00–08:00) — add assignments below.':'Day off — no assignments needed.'}`;
+
+  // Render attendance panel
+  renderAttendance(ds, allAbsent, quarterAbsent);
+
+  // Task groups
+  const tg=document.getElementById('taskGroups'); tg.innerHTML='';
+  if(assigns.length===0){
+    tg.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px"><div class="empty">No assignments for this date.${canEdit?' Click "+ Assign Task" to begin.':''}</div></div>`;
+  } else {
+    assigns.forEach(a=>{
+      const tc=TASK_COLORS[a.task]||TASK_COLORS['OTH'];
+      const mechs=(a.mechs||[]);
+      const div=document.createElement('div'); div.className='task-group';
+      div.innerHTML=`
+        <div class="task-group-header">
+          <div class="task-group-icon" style="background:${tc.bg};border:1px solid ${tc.border}">${tc.icon}</div>
+          <div class="task-group-title" style="color:${tc.color}">${a.task}</div>
+          ${a.reg?`<div class="task-group-reg">✈ ${a.reg}</div>`:''}
+          ${a.note?`<div style="font-size:11px;color:var(--text3);margin-left:8px">📝 ${a.note}</div>`:''}
+          ${canEdit?`<div style="margin-left:auto;display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="editAssign('${a.uid}')">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAssign('${a.uid}')">✕</button>
+          </div>`:''}
+        </div>
+        <div class="task-group-body">
+          ${mechs.length===0?'<span style="font-size:12px;color:var(--text3)">No mechanics assigned</span>':
+            mechs.map(m=>`<div class="mech-chip">${mechAv(m)}<span>${m}</span></div>`).join('')}
+        </div>`;
+      tg.appendChild(div);
+    });
+  }
+
+  // Absences
+  const ag=document.getElementById('absGroup');
+  if(absences.length===0){
+    ag.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px"><div class="empty">No absences recorded.${canEdit?` <button class="btn btn-ghost btn-sm" onclick="openAbsModal()" style="margin-top:6px">+ Mark Absence</button>`:''}</div></div>`;
+  } else {
+    let html=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px">`;
+    if(canEdit) html+=`<div style="float:right"><button class="btn btn-ghost btn-sm" onclick="openAbsModal()">+ Add</button></div>`;
+    absences.forEach(a=>{
+      const tc=TASK_COLORS[a.type]||TASK_COLORS['OTH'];
+      html+=`<div style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span class="badge ${BADGE_MAP[a.type]||'b-oth'}">${a.type}</span>
+          ${canEdit?`<button class="btn btn-danger btn-sm" onclick="deleteAbsence('${a.uid}')">✕</button>`:''}
+        </div>
+        <div class="abs-chips">${(a.mechs||[]).map(m=>`<div class="abs-chip">${mechAv(m)}<span>${m}</span></div>`).join('')}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+    ag.innerHTML=html;
+  }
+}
+
+function mechAv(name){
+  // Generate a unique hue from the name
+  let h=0; for(let i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))>>>0;
+  const hue=(h*137)%360; // golden angle spread — guarantees different colors
+  const bg=`hsl(${hue},55%,22%)`;
+  const border=`hsl(${hue},55%,40%)`;
+  const text=`hsl(${hue},80%,75%)`;
+  const initials=name.slice(0,2).toUpperCase();
+  return `<div style="width:26px;height:26px;border-radius:6px;background:${bg};border:1px solid ${border};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--mono);font-size:9px;font-weight:600;color:${text};letter-spacing:-.5px">${initials}</div>`;
+}
+
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+// Assign modal
+function openAssignModal(editUid){
+  buildMechChecks('mechChecks');
+  if(editUid){
+    const ds=state.selectedDate;
+    const a=(state.assignments[ds]||[]).find(x=>x.uid===editUid);
+    if(a){
+      document.getElementById('asgTask').value=a.task;
+      document.getElementById('asgReg').value=a.reg||'';
+      document.getElementById('asgNote').value=a.note||'';
+      onTaskChange();
+      // check the mechs
+      (a.mechs||[]).forEach(m=>{
+        const item=document.querySelector(`#mechChecks [data-mech="${CSS.escape(m)}"]`);
+        if(item){ item.classList.add('checked'); item.querySelector('input').checked=true; }
+      });
+      document.getElementById('asgTask').dataset.editUid=editUid;
+    }
+  } else {
+    document.getElementById('asgTask').value='E-CHK';
+    document.getElementById('asgReg').value='';
+    document.getElementById('asgNote').value='';
+    document.getElementById('asgTask').dataset.editUid='';
+    onTaskChange();
+  }
+  document.getElementById('assignModal').classList.add('open');
+}
+function editAssign(u){ openAssignModal(u); }
+
+function buildMechChecks(containerId){
+  const el=document.getElementById(containerId); el.innerHTML='';
+  const ds=state.selectedDate;
+  const quarterAbsent=new Set(getAbsentFromQuarter(ds).map(a=>a.id));
+  const manualAbsent=new Set((state.absences[ds]||[]).flatMap(a=>a.mechs||[]));
+
+  // Build map of mechanic → assigned task (for today, excluding current edit)
+  const editUid=document.getElementById('asgTask')?.dataset?.editUid||'';
+  const assignedTask={};
+  (state.assignments[ds]||[]).forEach(a=>{
+    if(a.uid===editUid) return; // exclude current assignment being edited
+    (a.mechs||[]).forEach(m=>{ assignedTask[m]=a.task; });
+  });
+
+  state.mechanics.forEach(m=>{
+    const isAbsent=quarterAbsent.has(m.id)||manualAbsent.has(m.id);
+    const existingTask=assignedTask[m.id];
+    const isBlocked=isAbsent||!!existingTask;
+    const item=document.createElement('div');
+    item.className='mech-check-item'; item.dataset.mech=m.id;
+    if(isBlocked) item.style.opacity='0.35';
+    let statusLabel='';
+    if(isAbsent) statusLabel=`<span style="font-size:9px;color:var(--red)">${CODE_LABEL[getAttendance(m.id,ds)]||'Absent'}</span>`;
+    else if(existingTask) statusLabel=`<span style="font-size:9px;color:var(--amber)">→ ${existingTask}</span>`;
+    item.innerHTML=`<input type="checkbox" ${isBlocked?'disabled':''}><div class="flex" style="gap:6px">${mechAv(m.id)}<span style="font-size:12px;font-weight:500">${m.id}${m.temp?' <span style="font-size:9px;color:var(--amber)">TEMP</span>':''}</span>${statusLabel}</div>`;
+    item.addEventListener('click',function(e){
+      if(isBlocked||e.target.tagName==='INPUT') return;
+      this.classList.toggle('checked');
+      this.querySelector('input').checked=this.classList.contains('checked');
+    });
+    el.appendChild(item);
+  });
+}
+function onTaskChange(){
+  const task=document.getElementById('asgTask').value;
+  const noReg=['DRIVER','TOOL','OTH'];
+  document.getElementById('asgRegGroup').style.display=noReg.includes(task)?'none':'block';
+}
+
+function getCheckedMechs(containerId){
+  return [...document.querySelectorAll(`#${containerId} .mech-check-item.checked`)].map(el=>el.dataset.mech);
+}
+
+function saveAssign(){
+  const ds=state.selectedDate;
+  const task=document.getElementById('asgTask').value;
+  const reg=document.getElementById('asgReg').value.trim().toUpperCase();
+  const note=document.getElementById('asgNote').value.trim();
+  const mechs=getCheckedMechs('mechChecks');
+  const editUid=document.getElementById('asgTask').dataset.editUid;
+  if(mechs.length===0){ alert('Please select at least one mechanic.'); return; }
+  if(!state.assignments[ds]) state.assignments[ds]=[];
+  if(editUid){
+    const idx=state.assignments[ds].findIndex(a=>a.uid===editUid);
+    if(idx>=0) state.assignments[ds][idx]={task,reg,note,mechs,uid:editUid};
+  } else {
+    state.assignments[ds].push({task,reg,note,mechs,uid:uid()});
+  }
+  saveState(); closeModal('assignModal'); renderDuty();
+  // Refresh counts if tab is visible
+  if(!document.getElementById('tab-counts').classList.contains('hidden')) renderCounts();
+}
+
+function incrementCount(mechId, task){
+  if(!state.taskCounts[mechId]) state.taskCounts[mechId]={echk:0,cc:0,rfid:0,deep:0,avr:0,gpu:0,tool:0,bsi:0,driver:0,oth:0};
+  const map={'E-CHK':'echk','CC':'cc','RFID':'rfid','DEEP CLEAN':'deep','AVR':'avr','GPU':'gpu','TOOL':'tool','BSI':'bsi','DRIVER':'driver','OTH':'oth'};
+  const key=map[task]; if(key) state.taskCounts[mechId][key]=(state.taskCounts[mechId][key]||0)+1;
+}
+
+function deleteAssign(u){
+  const ds=state.selectedDate;
+  state.assignments[ds]=(state.assignments[ds]||[]).filter(a=>a.uid!==u);
+  saveState(); renderDuty();
+  if(!document.getElementById('tab-counts').classList.contains('hidden')) renderCounts();
+}
+
+// Absence modal
+function openAbsModal(){
+  buildMechChecks('absChecks');
+  document.getElementById('absType').value='LEAVE';
+  document.getElementById('absModal').classList.add('open');
+}
+function saveAbsence(){
+  const ds=state.selectedDate;
+  const type=document.getElementById('absType').value;
+  const mechs=getCheckedMechs('absChecks');
+  if(mechs.length===0){ alert('Please select at least one mechanic.'); return; }
+  if(!state.absences[ds]) state.absences[ds]=[];
+  state.absences[ds].push({type,mechs,uid:uid()});
+  saveState(); closeModal('absModal'); renderDuty();
+}
+function deleteAbsence(u){
+  const ds=state.selectedDate;
+  state.absences[ds]=(state.absences[ds]||[]).filter(a=>a.uid!==u);
+  saveState(); renderDuty();
+}
+
+// ══════════════════════════════════════
+//  ASSIGNMENT COUNTS TAB
+// ══════════════════════════════════════
+const TASK_KEY_MAP={'E-CHK':'echk','CC':'cc','RFID':'rfid','DEEP CLEAN':'deep','AVR':'avr','GPU':'gpu','TOOL':'tool','BSI':'bsi','DRIVER':'driver','OTH':'oth'};
+
+function getMechTotal(mechId){
+  const seed=SEED_COUNTS[mechId]||{echk:0,cc:0,rfid:0,deep:0,avr:0,gpu:0,tool:0,bsi:0,driver:0,oth:0};
+  const keys=['echk','cc','rfid','deep','avr','gpu','tool','bsi','driver','oth'];
+  const result={};
+  keys.forEach(k=>{ result[k]=seed[k]||0; });
+
+  // Count dynamically from all assignments stored in state
+  Object.values(state.assignments).forEach(dayAssigns=>{
+    (dayAssigns||[]).forEach(a=>{
+      if((a.mechs||[]).includes(mechId)){
+        const key=TASK_KEY_MAP[a.task];
+        if(key) result[key]=(result[key]||0)+1;
+      }
+    });
+  });
+
+  result.total=keys.reduce((s,k)=>s+result[k],0);
+  return result;
+}
+
+function renderCounts(){
+  const body=document.getElementById('countsBody'); body.innerHTML='';
+  state.mechanics.forEach((m,i)=>{
+    const t=getMechTotal(m.id);
+    const num=(v)=>v>0?`<span class="num-hi">${v}</span>`:`<span class="num-zero">—</span>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="text-muted text-xs text-mono">${i+1}</td>
+      <td><div class="flex">${mechAv(m.id)}<span style="font-weight:500">${m.id}</span>${m.temp?'<span class="badge b-rotate" style="font-size:9px">TEMP</span>':''}</div></td>
+      <td>${num(t.echk)}</td><td>${num(t.cc)}</td><td>${num(t.rfid)}</td><td>${num(t.deep)}</td>
+      <td>${num(t.avr)}</td><td>${num(t.gpu)}</td><td>${num(t.tool)}</td><td>${num(t.bsi)}</td><td>${num(t.driver)}</td><td>${num(t.oth)}</td>
+      <td><span style="font-family:var(--mono);font-weight:500;color:var(--text)">${t.total}</span></td>`;
+    body.appendChild(tr);
+  });
+}
+
+// ══════════════════════════════════════
+//  OT QUEUE
+// ══════════════════════════════════════
+function renderOT(){
+  const now=new Date();
+  function monthKey(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+
+  // Count approved OT this month from actual request history
+  function thisMonthApproved(name){
+    const mk=monthKey(now);
+    return state.otRequests.filter(r=>r.name===name&&r.status==='Approved'&&r.date&&r.date.startsWith(mk)).length;
+  }
+
+  // Two-level sort: 1st = this month (fewest first), 2nd = total all-time (tiebreaker)
+  function otCompare(a,b){
+    const mA=thisMonthApproved(a), mB=thisMonthApproved(b);
+    if(mA!==mB) return mA-mB;                          // primary: this month
+    return (state.otApproved[a]||0)-(state.otApproved[b]||0); // tiebreaker: total
+  }
+
+  const pending=state.otRequests.filter(r=>r.status==='Pending');
+  const approved=state.otRequests.filter(r=>r.status==='Approved').sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const rejected=state.otRequests.filter(r=>r.status==='Rejected');
+  document.getElementById('otStats').innerHTML=`
+    <div class="stat"><div class="stat-num text-amber">${pending.length}</div><div class="stat-lbl">Pending</div></div>
+    <div class="stat"><div class="stat-num text-green">${approved.length}</div><div class="stat-lbl">Approved</div></div>
+    <div class="stat"><div class="stat-num text-red">${rejected.length}</div><div class="stat-lbl">Rejected</div></div>`;
+
+  const pb=document.getElementById('otPendingBody');
+  if(pending.length===0){ pb.innerHTML=`<div class="empty" style="padding:24px">No pending OT requests.</div>`; }
+  else {
+    const groups={};
+    pending.forEach(r=>{ const k=r.date+'|'+r.shift; if(!groups[k]) groups[k]=[]; groups[k].push(r); });
+    const sortedKeys=Object.keys(groups).sort((a,b)=>{ const [da,sa]=a.split('|'); const [db,sb]=b.split('|'); return new Date(da)-new Date(db)||(sa>sb?1:-1); });
+    pb.innerHTML=sortedKeys.map(k=>{
+      const [date,shift]=k.split('|');
+      // Two-level sort: fewest this month first, total as tiebreaker
+      const rows=groups[k].sort((a,b)=>otCompare(a.name,b.name));
+      const shiftTag=shift==='Day'?'<span class="tag-day">☀️ DAY  08:00–20:00</span>':'<span class="tag-night">🌙 NIGHT  20:00–08:00</span>';
+      const rowsHtml=rows.map((r,i)=>{
+        const total=state.otApproved[r.name]||0;
+        const monthly=thisMonthApproved(r.name);
+        // Bar shows this-month count (main sort key), scale 0-10
+        const barW=Math.min(Math.round(monthly/10*100),100);
+        const barCol=monthly===0?'var(--green)':monthly<3?'var(--amber)':'var(--red)';
+        return `
+        <div class="ot-row">
+          <div style="font-family:var(--mono);font-size:11px;color:var(--text3);text-align:center;min-width:22px;font-weight:500">${i+1}</div>
+          <div style="display:flex;align-items:center;gap:7px;flex:1">${mechAv(r.name)}
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:500;font-size:13px">${r.name}</div>
+              <div style="font-size:10px;color:var(--text3);margin-top:1px">${r.reason||'—'}</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+                <div style="flex:1;height:3px;background:var(--border);border-radius:2px;max-width:80px">
+                  <div style="width:${barW}%;height:100%;background:${barCol};border-radius:2px"></div>
+                </div>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">this mo <b style="color:${barCol}">${monthly}d</b></span>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">total <b style="color:var(--amber)">${total}d</b></span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:5px;align-items:center;flex-shrink:0">
+            ${canEdit?`<button class="btn btn-green btn-sm" onclick="approveOT('${r.uid}')">✓ Approve</button><button class="btn btn-danger btn-sm" onclick="rejectOT('${r.uid}')">✗</button>`:'<span class="badge b-pending">Pending</span>'}
+          </div>
+        </div>`;
+      }).join('');
+      return `<div style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px 10px 0 0">
+          <span style="font-family:var(--mono);font-weight:500;font-size:13px">${fmtDate(date)}</span>
+          ${shiftTag}
+          <span style="font-size:11px;color:var(--text3);margin-left:auto">${rows.length} request${rows.length>1?'s':''}</span>
+        </div>
+        <div style="border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;overflow:hidden">${rowsHtml}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const ab=document.getElementById('otApprovedBody');
+  ab.innerHTML=approved.length===0?`<div class="empty">No approved OT yet.</div>`:
+    approved.slice(0,40).map(r=>`
+      <div class="ot-row">
+        <div style="color:var(--text3);font-size:11px;text-align:center;min-width:22px">—</div>
+        <div style="display:flex;align-items:center;gap:7px;flex:1">${mechAv(r.name)}<span style="font-weight:500">${r.name}</span></div>
+        <div style="font-size:11px">${fmtDate(r.date)}</div>
+        <div>${r.shift==='Day'?'<span class="tag-day">DAY 08-20</span>':'<span class="tag-night">NIGHT 20-08</span>'}</div>
+        <div><span class="badge b-approved">Approved</span></div>
+      </div>`).join('');
+}
+
+function openOTModal(){
+  const sel=document.getElementById('otName');
+  sel.innerHTML=state.mechanics.map(m=>`<option value="${m.id}">${m.id}${m.temp?' (temp)':''}</option>`).join('');
+  document.getElementById('otDate').value=state.selectedDate;
+  document.getElementById('otReason').value='';
+  document.getElementById('otModal').classList.add('open');
+}
+function saveOT(){
+  const name=document.getElementById('otName').value;
+  const date=document.getElementById('otDate').value;
+  const shift=document.getElementById('otShift').value;
+  const reason=document.getElementById('otReason').value.trim();
+  if(!date){ alert('Please select a date.'); return; }
+  if(state.otRequests.find(r=>r.name===name&&r.date===date&&r.shift===shift&&r.status==='Pending')){ alert('Duplicate request exists.'); return; }
+  state.otRequests.push({uid:uid(),name,date,shift,reason,status:'Pending',submittedAt:new Date().toISOString()});
+  saveState(); closeModal('otModal'); renderOT();
+}
+function approveOT(u){
+  const r=state.otRequests.find(x=>x.uid===u); if(!r) return;
+  r.status='Approved';
+  r.approvedAt=new Date().toISOString(); // track approval time
+  state.otApproved[r.name]=(state.otApproved[r.name]||0)+1;
+  if(!state.otMonthly) state.otMonthly={};
+  if(!state.otMonthly[r.name]) state.otMonthly[r.name]={};
+  const d=new Date(r.date+'T00:00:00');
+  const mk=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  state.otMonthly[r.name][mk]=(state.otMonthly[r.name][mk]||0)+1;
+  saveState(); renderOT();
+}
+function rejectOT(u){
+  const r=state.otRequests.find(x=>x.uid===u); if(!r) return;
+  r.status='Rejected'; saveState(); renderOT();
+}
+
+// ══════════════════════════════════════
+//  ROSTER
+// ══════════════════════════════════════
+function renderRoster(){
+  const body=document.getElementById('rosterBody'); body.innerHTML='';
+  state.mechanics.forEach((m,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="text-mono text-muted text-xs">${i+1}</td>
+      <td><div class="flex">${mechAv(m.id)}<span style="font-weight:500">${m.id}</span>${m.temp?'<span class="badge b-rotate" style="font-size:9px">TEMP</span>':''}</div></td>
+      <td class="text-mono text-muted text-xs">${m.empId||'—'}</td>
+      <td>${m.temp?'<span class="badge b-rotate">Temporary</span>':'<span class="badge b-approved">Permanent</span>'}</td>
+      <td class="text-mono">${state.otApproved[m.id]||0}d</td>
+      <td class="hidden" id="rosterActHead">${canEdit?`<button class="btn btn-danger btn-sm" onclick="removeMechById('${m.id}')">Remove</button>`:''}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+// ══════════════════════════════════════
+//  SHIFT CALENDAR
+// ══════════════════════════════════════
+let calOffset=0; // year offset from current year
+function renderCalendar(){
+  const container=document.getElementById('calPages'); container.innerHTML='';
+  const today=new Date(); today.setHours(0,0,0,0);
+  const startMonth=new Date(today.getFullYear()+(calOffset===0?0:calOffset), calOffset===0?today.getMonth():0, 1);
+  const monthCount=calOffset===0?12:12;
+  document.getElementById('calRangeLabel').textContent=
+    `${startMonth.toLocaleDateString('en',{month:'long',year:'numeric'})} — ${new Date(startMonth.getFullYear(),startMonth.getMonth()+monthCount-1,1).toLocaleDateString('en',{month:'long',year:'numeric'})}`;
+
+  // Grid of months — 2 columns
+  const grid=document.createElement('div');
+  grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px';
+
+  for(let mo=0;mo<monthCount;mo++){
+    const mStart=new Date(startMonth.getFullYear(),startMonth.getMonth()+mo,1);
+    const year=mStart.getFullYear(); const month=mStart.getMonth();
+    const label=mStart.toLocaleDateString('en',{month:'long',year:'numeric'});
+    const daysInMonth=new Date(year,month+1,0).getDate();
+    const firstDow=mStart.getDay();
+    let html=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px">
+      <div style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px">${label}</div>
+      <div class="shift-grid">`;
+    ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d=>{ html+=`<div style="text-align:center;font-family:var(--mono);font-size:9px;color:var(--text3);padding:3px">${d}</div>`; });
+    for(let i=0;i<firstDow;i++) html+=`<div></div>`;
+    for(let day=1;day<=daysInMonth;day++){
+      const d=new Date(year,month,day);
+      const ds=dateToStr(d);
+      const work=isWorkDay(d);
+      const isToday=ds===todayStr();
+      const isSel=ds===state.selectedDate;
+      const hasA=(state.assignments[ds]||[]).length>0;
+      html+=`<div class="shift-cell ${work?'work-c':'off-c'} ${isToday?'today-c':''} ${isSel?'sel-c':''}" onclick="jumpToDay('${ds}')">
+        <span>${day}</span><span class="sday">${work?'WK':'OFF'}</span>
+        ${hasA?`<div style="width:3px;height:3px;border-radius:50%;background:var(--amber);margin-top:1px"></div>`:''}
+      </div>`;
+    }
+    html+=`</div></div>`;
+    const div=document.createElement('div');
+    div.innerHTML=html;
+    grid.appendChild(div);
+  }
+  container.appendChild(grid);
+}
+function jumpToDay(ds){ state.selectedDate=ds; saveState(); showTab('duty'); }
+
+// ══════════════════════════════════════
+//  ADMIN
+// ══════════════════════════════════════
+function renderAdmin(){
+  // Update quarter status display
+  const qs=document.getElementById('quarterStatus');
+  const qb=document.getElementById('quarterBadge');
+  if(qs&&qb){
+    if(state.quarterFile&&state.quarterLoaded){
+      const d=new Date(state.quarterLoaded);
+      qs.textContent=`Loaded: ${state.quarterFile} (${fmtDate(dateToStr(d))})`;
+      qb.textContent='Updated'; qb.className='badge b-approved';
+    } else {
+      qs.textContent='Loaded: Q2 2026 (pre-loaded)';
+      qb.textContent='Pre-loaded'; qb.className='badge b-pending';
+    }
+  }
+  const db=document.getElementById('deputyBody');
+  db.innerHTML=state.deputies.length===0?`<tr><td colspan="2"><div class="empty">No deputies.</div></td></tr>`:
+    state.deputies.map((d,i)=>`<tr><td style="font-weight:500">${d.name}</td><td><button class="btn btn-danger btn-sm" onclick="removeDeputy(${i})">Remove</button></td></tr>`).join('');
+  const mb=document.getElementById('adminMechBody');
+  mb.innerHTML=state.mechanics.map((m,i)=>`<tr>
+    <td><div class="flex">${mechAv(m.id)}<span style="font-weight:500">${m.id}</span></div></td>
+    <td class="text-mono text-muted text-xs">${m.empId||'—'}</td>
+    <td>${m.temp?'<span class="badge b-rotate">Temporary</span>':'<span class="badge b-approved">Permanent</span>'}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="removeMech(${i})">Remove</button></td>
+  </tr>`).join('');
+}
+function openAddMechModal(){ document.getElementById('mechNick').value=''; document.getElementById('mechEmpId').value=''; document.getElementById('addMechModal').classList.add('open'); }
+function saveMech(){
+  const nick=document.getElementById('mechNick').value.trim().toUpperCase();
+  const empId=document.getElementById('mechEmpId').value.trim();
+  const temp=document.getElementById('mechTemp').value==='true';
+  if(!nick){ alert('Please enter a nickname.'); return; }
+  if(state.mechanics.find(m=>m.id===nick)){ alert('Already exists.'); return; }
+  state.mechanics.push({id:nick,empId,temp});
+  if(!state.otApproved[nick]) state.otApproved[nick]=0;
+  saveState(); closeModal('addMechModal'); renderAdmin(); renderRoster();
+}
+function removeMech(i){ if(!confirm(`Remove ${state.mechanics[i].id}?`)) return; state.mechanics.splice(i,1); saveState(); renderAdmin(); renderRoster(); }
+function removeMechById(id){ const i=state.mechanics.findIndex(m=>m.id===id); if(i>=0) removeMech(i); }
+function openDeputyModal(){ document.getElementById('depName').value=''; document.getElementById('depPwd').value=''; document.getElementById('deputyModal').classList.add('open'); }
+function saveDeputy(){ const name=document.getElementById('depName').value.trim(); const pwd=document.getElementById('depPwd').value; if(!name||!pwd){alert('Fill both fields.');return;} state.deputies.push({name,pwd}); saveState(); closeModal('deputyModal'); renderAdmin(); }
+function removeDeputy(i){ if(!confirm(`Remove ${state.deputies[i].name}?`)) return; state.deputies.splice(i,1); saveState(); renderAdmin(); }
+
+// ══════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }); });
+
+// ══════════════════════════════════════
+//  BLOCK SUMMARY
+// ══════════════════════════════════════
+let summaryBlockOffset=0; // 0=current block, -1=prev, +1=next etc.
+
+function getBlockDays(offset){
+  // Find the 4 work days of the block at offset from today's block
+  const today=new Date(); today.setHours(0,0,0,0);
+  const base=new Date(SHIFT_START); base.setHours(0,0,0,0);
+  const diff=Math.round((today-base)/86400000);
+  const pos=((diff%8)+8)%8;
+  // Start of current block (pos 0-3=off, 4-7=work → find start of work segment)
+  const blockStart=pos<4
+    ? new Date(today.getTime()+(4-pos)*86400000)   // today is in off block, next work starts in (4-pos) days
+    : new Date(today.getTime()-(pos-4)*86400000);   // today is in work block, go back to start
+  // Apply offset (each offset = 8 days)
+  blockStart.setDate(blockStart.getDate()+(offset*8));
+  const days=[];
+  for(let i=0;i<4;i++){
+    const d=new Date(blockStart); d.setDate(d.getDate()+i);
+    days.push(dateToStr(d));
+  }
+  return days;
+}
+
+const TASK_ORDER=['E-CHK','CC','RFID','DEEP CLEAN','AVR','GPU','DRIVER','TOOL','BSI','OTH'];
+
+function renderBlockSummary(){
+  const days=getBlockDays(summaryBlockOffset);
+  const dayLabels=days.map(ds=>`${dayName(ds)} ${new Date(ds+'T00:00:00').getDate()} ${new Date(ds+'T00:00:00').toLocaleString('en',{month:'short'})}`);
+
+  document.getElementById('summaryBlockLabel').textContent=
+    summaryBlockOffset===0?'Current work block':summaryBlockOffset<0?`${Math.abs(summaryBlockOffset)} block(s) ago`:`${summaryBlockOffset} block(s) ahead`;
+  document.getElementById('summaryBlockDates').textContent=
+    `${fmtDate(days[0])} → ${fmtDate(days[3])}`;
+
+  // Collect all tasks across 4 days
+  const taskMap={}; // task → {ds: [mechIds]}
+  days.forEach(ds=>{
+    (state.assignments[ds]||[]).forEach(a=>{
+      if(!taskMap[a.task]) taskMap[a.task]={};
+      if(!taskMap[a.task][ds]) taskMap[a.task][ds]=[];
+      (a.mechs||[]).forEach(m=>taskMap[a.task][ds].push({mech:m,reg:a.reg||''}));
+    });
+  });
+
+  const tasks=Object.keys(taskMap).sort((a,b)=>{
+    const ia=TASK_ORDER.indexOf(a); const ib=TASK_ORDER.indexOf(b);
+    return (ia<0?99:ia)-(ib<0?99:ib);
+  });
+
+  if(tasks.length===0){
+    document.getElementById('summaryContent').innerHTML=
+      `<div class="empty" style="padding:40px">No assignments found for this block.<br><span style="font-size:11px">Go to Daily Duty to assign tasks.</span></div>`;
+    return;
+  }
+
+  const BADGE=BADGE_MAP;
+
+  let html=`<div style="overflow-x:auto">
+  <table style="width:100%;border-collapse:collapse;min-width:500px;font-size:13px">
+    <thead>
+      <tr style="background:var(--surface2)">
+        <th style="padding:10px 14px;text-align:left;font-family:var(--mono);font-size:11px;color:var(--text3);border-bottom:1px solid var(--border);width:120px">TASK</th>
+        ${dayLabels.map((l,i)=>`<th style="padding:10px 14px;text-align:left;font-family:var(--mono);font-size:11px;color:${days[i]===todayStr()?'var(--accent2)':'var(--text3)'};border-bottom:1px solid var(--border);border-left:1px solid var(--border)">${l}${days[i]===todayStr()?' ◀':''}</th>`).join('')}
+      </tr>
+    </thead>
+    <tbody>`;
+
+  tasks.forEach(task=>{
+    const badgeCls=BADGE[task]||'b-oth';
+    html+=`<tr>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top">
+        <span class="badge ${badgeCls}">${task}</span>
+      </td>
+      ${days.map(ds=>{
+        const entries=taskMap[task][ds]||[];
+        if(entries.length===0) return `<td style="padding:10px 14px;border-bottom:1px solid var(--border);border-left:1px solid var(--border);color:var(--text3);font-size:11px">—</td>`;
+        const names=entries.map(e=>`<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px">
+          ${mechAv(e.mech)}
+          <div>
+            <div style="font-weight:500;font-size:12px">${e.mech}</div>
+            ${e.reg?`<div style="font-family:var(--mono);font-size:10px;color:var(--text3)">${e.reg}</div>`:''}
+          </div>
+        </div>`).join('');
+        const bg=ds===todayStr()?'rgba(79,142,247,.04)':'';
+        return `<td style="padding:10px 14px;border-bottom:1px solid var(--border);border-left:1px solid var(--border);vertical-align:top;background:${bg}">${names}</td>`;
+      }).join('')}
+    </tr>`;
+  });
+
+  html+=`</tbody></table></div>`;
+  document.getElementById('summaryContent').innerHTML=html;
+}
+
+function summaryPrevBlock(){ summaryBlockOffset--; renderBlockSummary(); }
+function summaryNextBlock(){ summaryBlockOffset++; renderBlockSummary(); }
+
+function renderAll(){ renderDuty(); }
+
+// Declare state here — after all functions are defined
+let state = loadState();
+
+// INIT
+(function(){
+  state.mechanics.forEach(m=>{ if(state.otApproved[m.id]===undefined) state.otApproved[m.id]=0; });
+  saveState(); updateYearUI(); renderAll(); applyAuth();
+})();
+</script>
+
+<!-- SheetJS for xlsx parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+function handleQuarterDrop(e){
+  e.preventDefault();
+  document.getElementById('dropZone').style.borderColor='var(--border)';
+  const file=e.dataTransfer.files[0];
+  if(file) handleQuarterFile(file);
+}
+
+function handleQuarterFile(file){
+  if(!file) return;
+  if(!file.name.match(/\.xlsx$/i)){ alert('Please upload an .xlsx file.'); return; }
+  const prog=document.getElementById('quarterProgress');
+  const result=document.getElementById('quarterResult');
+  prog.style.display='block'; result.style.display='none';
+
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
+
+      // Find N2 sheet
+      const sheetName=wb.SheetNames.find(s=>s.trim().toUpperCase()==='N2');
+      if(!sheetName){ prog.style.display='none'; alert('Could not find N2 sheet in this file. Please check the file.'); return; }
+      const ws=wb.Sheets[sheetName];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,dateNF:'yyyy-mm-dd'});
+
+      // Find date header row (row with multiple date values)
+      let dateRow=-1, dateColStart=-1;
+      const dateCols=[];
+      for(let r=0;r<10;r++){
+        const row=rows[r]||[];
+        const found=[];
+        for(let c=0;c<row.length;c++){
+          const v=row[c];
+          if(v && String(v).match(/^\d{4}-\d{2}-\d{2}$/)){
+            found.push({col:c,date:String(v)});
+          }
+        }
+        if(found.length>5){ dateRow=r; found.forEach(f=>dateCols.push(f)); break; }
+      }
+
+      if(dateRow===-1){ prog.style.display='none'; alert('Could not find date headers in N2 sheet.'); return; }
+
+      // Fix year if template uses wrong year (e.g. 2022 instead of 2026)
+      // Determine correct year from file name or use most common year in dates
+      const yearCounts={};
+      dateCols.forEach(d=>{ const y=d.date.split('-')[0]; yearCounts[y]=(yearCounts[y]||0)+1; });
+      const templateYear=Object.keys(yearCounts).sort((a,b)=>yearCounts[b]-yearCounts[a])[0];
+      // Detect actual year from filename or quarter label in sheet
+      const quarterLabel=rows[0]?String(rows[0][0]||''):'';
+      const actualYear=quarterLabel.match(/20\d\d/)?quarterLabel.match(/20\d\d/)[0]:String(new Date().getFullYear());
+
+      // Build attendance map
+      const attendance={};
+      const MECH_START_ROW=dateRow+1;
+      const LAE_ROLES=['LAE','LEAD LAE','LAE A320','LAE320','SUCCESSOR'];
+
+      for(let r=MECH_START_ROW;r<rows.length;r++){
+        const row=rows[r]||[];
+        const name=row[2]?String(row[2]).trim():'';
+        const role=row[4]?String(row[4]).toUpperCase():'';
+        if(!name) continue;
+        // Skip LAE rows
+        if(LAE_ROLES.some(l=>role.includes(l))) continue;
+        // Skip summary/header rows
+        if(['LEAVE','ROTATE','TRAINING','OTHER','TOTAL','LAE','MECHANIC'].includes(name.toUpperCase())) continue;
+        // Skip if no number in col 0 (not a mechanic row)
+        if(!row[0]||isNaN(parseFloat(row[0]))) continue;
+
+        const daily={};
+        dateCols.forEach(({col,date})=>{
+          let ds=date;
+          // Fix template year
+          if(templateYear!==actualYear) ds=ds.replace(templateYear,actualYear);
+          const val=row[col]?String(row[col]).trim():'';
+          if(val){
+            const code=val.split(/\s+/)[0].toUpperCase();
+            if(code && !['N','SW',''].includes(code)) daily[ds]=code;
+          }
+        });
+        attendance[name]=daily;
+      }
+
+      const mechCount=Object.keys(attendance).length;
+      if(mechCount===0){ prog.style.display='none'; alert('No mechanics found in N2 sheet. Check the file format.'); return; }
+
+      // Save to state — overwrites previous quarter data
+      state.quarterAttendance=attendance;
+      state.quarterFile=file.name;
+      state.quarterLoaded=new Date().toISOString();
+      saveState();
+
+      prog.style.display='none';
+      result.style.display='block';
+      result.innerHTML=`<div style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--green)">
+        ✓ Loaded <b>${file.name}</b> — ${mechCount} mechanics, ${dateCols.length} days imported successfully.
+        <div style="margin-top:4px;color:var(--text3)">Previous quarter data has been replaced. Attendance panel will reflect the new data immediately.</div>
+      </div>`;
+      document.getElementById('quarterStatus').textContent=`Loaded: ${file.name}`;
+      document.getElementById('quarterBadge').textContent='Updated';
+
+      // Refresh duty view if open
+      renderDuty();
+    } catch(err){
+      prog.style.display='none';
+      alert('Error reading file: '+err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// getAttendance is defined in the main script block above
+</script>
+</body>
+</html>
